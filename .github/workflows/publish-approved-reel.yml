@@ -1,0 +1,34 @@
+name: Publish approved Instagram reel
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Publish only an approved reel
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+        run: python publish_reel.py
+      - name: Save publication status
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "characzone-reels-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add approved.json
+          git commit -m "Mark reel as published"
+          git push
