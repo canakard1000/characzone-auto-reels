@@ -9,12 +9,12 @@ import requests
 
 
 GRAPH_VERSION = os.getenv("META_GRAPH_VERSION", "v26.0")
-GRAPH_BASE = `https://graph.facebook.com/${GRAPH_VERSION}`
+GRAPH_BASE = f"https://graph.facebook.com/{GRAPH_VERSION}"
 MANIFEST = Path(os.getenv("REELS_MANIFEST", "approved.json"))
 
 
 def api(method: str, path: str, **kwargs):
-    response = requests.request(method, `${GRAPH_BASE}/${path.lstrip("/")}`, timeout=60, **kwargs)
+    response = requests.request(method, f"{GRAPH_BASE}/{path.lstrip('/')}", timeout=60, **kwargs)
     try:
         payload = response.json()
     except ValueError:
