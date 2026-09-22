@@ -5,13 +5,24 @@ on:
     - cron: "0 0 * * *"
     - cron: "0 7 * * *"
   workflow_dispatch:
+    inputs:
+      preflight_only:
+        description: "Validate secrets, Instagram account, and video URL without publishing"
+        required: true
+        type: boolean
+        default: true
 
 permissions:
   contents: write
 
+concurrency:
+  group: instagram-reel-publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,12 +30,14 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Publish only an approved reel
+      - name: Preflight or publish an approved reel
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          PREFLIGHT_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.preflight_only || 'false' }}
         run: python publish_reel.py
       - name: Save publication status
+        if: github.event_name == 'schedule' || inputs.preflight_only == false
         run: |
           if git diff --quiet; then exit 0; fi
           git config user.name "characzone-reels-bot"
