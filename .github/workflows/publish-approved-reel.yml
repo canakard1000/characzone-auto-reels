@@ -1,4 +1,5 @@
 name: Publish approved Instagram reel
+# Temporary safe preflight trigger
 
 on:
   push:
