@@ -48,7 +48,7 @@ def preflight():
     account = api(
         "GET",
         ig_user_id,
-        params={"fields": "id,username,account_type", "access_token": token},
+        params={"fields": "id,username", "access_token": token},
     )
     if str(account.get("id")) != ig_user_id:
         raise RuntimeError("INSTAGRAM_USER_ID does not match the connected Instagram account")
