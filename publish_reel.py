@@ -59,6 +59,7 @@ def preflight():
         raise RuntimeError("No reel is defined in approved.json")
     reel = reels[0]
     response = requests.get(reel["video_url"], stream=True, timeout=60, allow_redirects=True)
+
     response.raise_for_status()
     content_type = response.headers.get("content-type", "").lower()
     if "video" not in content_type and "octet-stream" not in content_type:
@@ -96,6 +97,7 @@ def main():
             "video_url": reel["video_url"],
             "caption": reel["caption"],
             "share_to_feed": "true",
+            "thumb_offset": "1500",
             "access_token": token,
         },
     )["id"]
