@@ -84,9 +84,9 @@ def main():
         preflight()
         return
 
+    reel, manifest = load_approved_reel()
     token = os.environ["META_ACCESS_TOKEN"]
     ig_user_id = os.environ["INSTAGRAM_USER_ID"]
-    reel, manifest = load_approved_reel()
 
     container = api(
         "POST",
