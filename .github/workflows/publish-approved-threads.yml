@@ -1,0 +1,61 @@
+name: Publish approved Threads reel
+
+on:
+  workflow_run:
+    workflows: ["Publish approved Instagram reel"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish one approved reel (false performs read-only preflight)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: characzone-threads-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Report connection status
+        if: vars.THREADS_ENABLED != 'true'
+        run: echo 'Threads is not activated. Connect gacha_m2026, run preflight, then set THREADS_ENABLED=true.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/checkout@v4
+        if: vars.THREADS_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        if: vars.THREADS_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        with:
+          python-version: '3.12'
+      - name: Install dependencies and test
+        if: vars.THREADS_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -v
+      - uses: actions/checkout@v4
+        if: vars.THREADS_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish)
+        with:
+          ref: social-publish-state
+          path: .social-state
+      - name: Validate account or publish
+        if: vars.THREADS_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          PUBLISH: ${{ vars.THREADS_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish) }}
+        run: |
+          if [ "$PUBLISH" = 'true' ]; then
+            python publish_threads.py --publish
+          else
+            python publish_threads.py
+          fi
