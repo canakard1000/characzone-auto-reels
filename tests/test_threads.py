@@ -43,6 +43,11 @@ class PublishingTests(unittest.TestCase):
         self.assertEqual(approved_reels({"reels": [{**REEL, "approved": "true"}]}), [])
         self.assertEqual(approved_reels({"reels": [{**REEL, "approved": False}]}), [])
 
+    def test_future_or_rejected_reels_excluded(self):
+        for changes in [{"scheduled_for": "2099-01-01T00:00:00+00:00"}, {"rejected": True}]:
+            self.assertEqual(approved_reels({"reels": [{**REEL, **changes}]}), [])
+        self.assertEqual(approved_reels({"reels": [{**REEL, "scheduled_for": "2020-01-01T00:00:00Z"}]} )[0]["id"], REEL["id"])
+
     def test_duplicate_ids_rejected(self):
         with self.assertRaises(PublishError):
             approved_reels({"reels": [REEL, REEL]})
@@ -124,6 +129,20 @@ class PublishingTests(unittest.TestCase):
     def test_wrong_account_prevents_post(self):
         c = Threads("secret", "expected-id")
         c.api = Mock(return_value={"id": "expected-id", "username": "wrong_account"})
+        with self.assertRaises(PublishError):
+            c.preflight()
+
+    def test_account_id_resolved_only_for_expected_username(self):
+        c = Threads("secret", "")
+        c.api = Mock(side_effect=[{"id": "verified-id", "username": "gacha_m2026"},
+            {"data": [{"permission": p, "status": "granted"}
+                      for p in ["threads_basic", "threads_content_publish"]]}])
+        c.preflight()
+        self.assertEqual(c.user_id, "verified-id")
+
+    def test_configured_id_mismatch_rejected(self):
+        c = Threads("secret", "different-id")
+        c.api = Mock(return_value={"id": "verified-id", "username": "gacha_m2026"})
         with self.assertRaises(PublishError):
             c.preflight()
 

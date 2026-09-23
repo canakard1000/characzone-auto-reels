@@ -35,7 +35,18 @@ def approved_reels(manifest):
     if any(not isinstance(i, str) or not i for i in ids) or len(ids) != len(set(ids)):
         raise PublishError("Manifest has missing or duplicate reel IDs")
     # published / published_at belong exclusively to Instagram.
-    return [item for item in items if item.get("approved") is True]
+    eligible = []
+    for item in items:
+        if item.get("approved") is not True or item.get("rejected") is True:
+            continue
+        if item.get("scheduled_for"):
+            scheduled = datetime.fromisoformat(item["scheduled_for"].replace("Z", "+00:00"))
+            if scheduled.tzinfo is None:
+                raise PublishError("Scheduled time must include a timezone")
+            if scheduled > datetime.now(timezone.utc):
+                continue
+        eligible.append(item)
+    return eligible
 
 
 def validate(reel):
@@ -68,8 +79,10 @@ class Threads:
 
     def preflight(self):
         account = self.api("GET", "me", fields="id,username")
-        if str(account.get("id")) != self.user_id or account.get("username") != EXPECTED_USERNAME:
+        if (not account.get("id") or account.get("username") != EXPECTED_USERNAME
+                or (self.user_id and str(account["id"]) != self.user_id)):
             raise PublishError("Connected Threads account does not match gacha_m2026 and THREADS_USER_ID")
+        self.user_id = str(account["id"])
         permissions = self.api("GET", "me/permissions").get("data", [])
         granted = {p.get("permission") for p in permissions if p.get("status") == "granted"}
         if not {"threads_basic", "threads_content_publish"} <= granted:
@@ -174,8 +187,8 @@ def main():
         validate(reel)
     token = os.getenv("THREADS_ACCESS_TOKEN", "").strip()
     user_id = os.getenv("THREADS_USER_ID", "").strip()
-    if not token or not user_id:
-        raise PublishError("Missing THREADS_ACCESS_TOKEN or THREADS_USER_ID; no post sent")
+    if not token:
+        raise PublishError("Missing THREADS_ACCESS_TOKEN; no post sent")
     client = Threads(token, user_id)
     client.preflight()
     if not args.publish:
