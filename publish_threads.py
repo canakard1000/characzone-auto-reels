@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -74,7 +75,9 @@ class Threads:
             raise PublishError("Threads transport/JSON failure; inspect saved phase before retry") from None
         if not response.ok or "error" in payload:
             code = payload.get("error", {}).get("code", "unknown")
-            raise PublishError(f"Threads API failed: HTTP {response.status_code}, code {code}")
+            detail = str(payload.get("error", {}).get("message", "")).replace(self.token, "[REDACTED]")
+            detail = re.sub(r"https?://\S+|[A-Za-z0-9_\-]{50,}", "[REDACTED]", detail)[:350]
+            raise PublishError(f"Threads API failed at {path}: HTTP {response.status_code}, code {code}: {detail}")
         return payload
 
     def preflight(self):
