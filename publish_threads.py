@@ -86,10 +86,15 @@ class Threads:
                 or (self.user_id and str(account["id"]) != self.user_id)):
             raise PublishError("Connected Threads account does not match gacha_m2026 and THREADS_USER_ID")
         self.user_id = str(account["id"])
-        permissions = self.api("GET", "me/permissions").get("data", [])
-        granted = {p.get("permission") for p in permissions if p.get("status") == "granted"}
-        if not {"threads_basic", "threads_content_publish"} <= granted:
-            raise PublishError("Threads basic/publishing permission is missing")
+        # Threads has no /me/permissions edge. This documented read-only edge
+        # requires both threads_basic and threads_content_publish.
+        limits = self.api("GET", "me/threads_publishing_limit", fields="quota_usage,config").get("data", [])
+        if not limits or not isinstance(limits[0].get("quota_usage"), int):
+            raise PublishError("Threads publishing permission/quota could not be verified")
+        quota = limits[0]
+        total = quota.get("config", {}).get("quota_total")
+        if total is not None and quota["quota_usage"] >= total:
+            raise PublishError("Threads publishing quota exhausted")
         print(f"Threads account and permissions verified: @{EXPECTED_USERNAME}")
 
     def create(self, reel):

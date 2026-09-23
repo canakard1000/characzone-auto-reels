@@ -135,8 +135,7 @@ class PublishingTests(unittest.TestCase):
     def test_account_id_resolved_only_for_expected_username(self):
         c = Threads("secret", "")
         c.api = Mock(side_effect=[{"id": "verified-id", "username": "gacha_m2026"},
-            {"data": [{"permission": p, "status": "granted"}
-                      for p in ["threads_basic", "threads_content_publish"]]}])
+            {"data": [{"quota_usage": 0, "config": {"quota_total": 250}}]}])
         c.preflight()
         self.assertEqual(c.user_id, "verified-id")
 
