@@ -1,11 +1,15 @@
 # 캐릭존 Instagram 릴스 자동 업로드
 
-한국시간 오전 9시와 오후 4시에 실행되며 `approved.json`에서 `approved: true`인 영상만 게시합니다.
+매일 한국시간 오후 9시에 다음 날 사용할 서로 다른 릴스 2개를 제작합니다. 각 영상은 실제 공급 머신·운영 매장 사진을 최소 9장 사용하며 사진 순서, 확대 이동, 색상, 문구, 음악 패턴을 날짜와 시간대별로 바꿉니다.
+
+Telegram 미리보기에서 `/approve 영상ID` 또는 `/reject 영상ID`로 검토합니다. 승인된 영상만 한국시간 오전 9시와 오후 4시에 게시됩니다.
 
 필수 GitHub 보안값:
 
 - `META_ACCESS_TOKEN`
 - `INSTAGRAM_USER_ID`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
 
 콘텐츠 기준:
 
@@ -16,3 +20,5 @@
 - 상담번호: `010-2587-8553`
 
 승인 전에는 `approved`를 `false`로 유지합니다. 검토 후 승인된 영상만 `true`로 변경합니다.
+
+TikTok과 Threads는 각 플랫폼의 게시 권한 연결이 끝난 뒤 같은 승인 대기열을 사용합니다. 다른 플랫폼 연결 실패는 Instagram 게시를 막지 않습니다.

@@ -1,5 +1,8 @@
 __pycache__/
 *.pyc
+.characzone-*-segments/
+.characzone-*-frames/
+build/
 .social-state/
 .env
 .env.*

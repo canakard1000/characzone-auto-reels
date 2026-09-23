@@ -32,7 +32,16 @@ def load_manifest():
 
 def load_approved_reel():
     data = load_manifest()
-    items = [item for item in data.get("reels", []) if item.get("approved") and not item.get("published")]
+    current = datetime.now(timezone.utc)
+    items = []
+    for item in data.get("reels", []):
+        if not item.get("approved") or item.get("published"):
+            continue
+        scheduled = item.get("scheduled_for")
+        if scheduled and datetime.fromisoformat(scheduled) > current:
+            continue
+        items.append(item)
+    items.sort(key=lambda item: item.get("scheduled_for", ""))
     if not items:
         print("No approved unpublished reel. Nothing to do.")
         sys.exit(0)
