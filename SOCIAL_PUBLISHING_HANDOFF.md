@@ -1,11 +1,11 @@
-# 캐릭존 추가 채널 연결 — 2026-09-22
+# 캐릭존 추가 채널 연결 — 2026-09-23
 
 ## 사용자 요청 및 현재 상태
 
 - 승인된 `characzone-reel-05`부터 Threads/TikTok에 게시하고 이후 승인 영상도 대상에 포함.
 - Instagram 게시 코드, 기존 예약(한국시간 09:00·16:00), 썸네일 설정, approved.json은 변경하지 않음.
 - Instagram 릴스 05는 기존 manifest에 게시 완료로 기록됨. 추가 채널 실제 게시 완료를 의미하지 않음.
-- Threads 대상: `gacha_m2026`. 현재 브라우저는 로그아웃. 이전 기록의 테스터 초대 수락/토큰 발급은 재확인 필요.
+- Threads 대상: `gacha_m2026`. 테스터 초대 수락, Threads 기본/게시 권한 승인, 장기 토큰 발급 및 GitHub Secrets 저장 완료. 실제 게시 검증 완료.
 - TikTok 대상: `jinwoo.jang5`. TikTok Lite `user7504613622941`는 별도 계정이며 작업 대상이 아님.
 - TikTok 앱 ID: `7688204010964256786`. 이전 기록의 Sandbox 계정 연결은 미완료. 이번 점검에서 기존 개발자 탭 응답 시간 초과 후 탭이 닫혀 현재 연결 상태는 검증하지 못함.
 
@@ -22,7 +22,7 @@
 - 한 실행에 승인 영상 하나. 게시 이력이 있으면 건너뜀. 승인된 영상이 없으면 새 영상을 만들거나 같은 영상을 반복 게시하지 않음.
 - 미승인, 중복 ID, 변경된 컨텐츠, 500자 초과 본문, 외부 영상 URL은 차단.
 
-필요한 GitHub Secrets: `THREADS_ACCESS_TOKEN`(Threads 전용), `THREADS_USER_ID`.
+필수 GitHub Secret: `THREADS_ACCESS_TOKEN`(저장 완료). `THREADS_USER_ID`는 선택적 추가 고정값이며, 미설정 시 API가 반환한 사용자명이 `gacha_m2026`일 때만 ID를 채택.
 기존 `META_ACCESS_TOKEN`, `INSTAGRAM_USER_ID`는 사용/교체하지 않음.
 
 연결 순서:
@@ -52,11 +52,43 @@
 - Meta 공식 Threads API 예제: https://github.com/fbsamples/threads_api/blob/main/postman/threads-api.postman_collection.json
 - Threads: https://www.threads.com/
 
-실제 추가 채널 게시/토큰 연결은 아직 검증 전. 코드 테스트 성공과 운영 연결 성공을 구분해서 보고할 것.
+Threads 실제 게시와 연결은 검증 완료. TikTok은 아직 게시하지 않았음.
 
 ## 이번 검증 결과
 
 - 로컬 모의 API 테스트 16건 통과. 중복 게시, 응답 유실, 상태 저장 실패, 계정 불일치, 권한 누락, 승인 취소 등을 검증.
 - 기존 Instagram 코드·workflow·approved.json의 git diff 없음.
 - `social-publish-state` 브랜치 생성 완료.
-- 실제 Threads API 호출/게시 및 TikTok 게시 검증은 계정 연결 전으로 미실행.
+- Threads 실제 API 사전검증 및 릴스 05 게시 성공. TikTok 게시 미실행.
+
+
+## 2026-09-23 연결 및 게시 완료 기록
+
+- Threads 앱 ID `1645622460325496`, Meta 부모 앱 ID `2864881330557790`.
+- 승인 범위: threads_basic + threads_content_publish. 답글 관리/읽기 및 통계 권한 제외.
+- `THREADS_ACCESS_TOKEN` 저장 완료, `THREADS_ENABLED=true` 활성화 완료.
+- 실제 사전검증: https://github.com/canakard1000/characzone-auto-reels/actions/runs/35871745577 (3번째 시도 성공).
+- 실패 원인/수정: `/me/permissions`는 Threads에 없는 필드. HTTP 500/code100 반환. 공식 `/me/threads_publishing_limit` 조회로 게시 권한과 한도 검증하도록 수정. 사용자 계정 조회는 정상.
+- 실제 게시 실행: https://github.com/canakard1000/characzone-auto-reels/actions/runs/35872299835 성공.
+- 릴스 05 게시 링크: https://www.threads.com/@gacha_m2026/post/DdofpoHDQ48
+- Threads media ID `17988355277867159`, container `18116635165840344`.
+- 게시 시각: 2026-09-23T14:11:56Z (한국시간 23:11:56).
+- 별도 state 브랜치에 phase=published 저장 완료. 브라우저에서 해당 계정·본문·영상 재생 화면 확인.
+- 로컬 Threads 테스트 19건, GitHub 전체 테스트 23건 통과.
+- 동시 추가된 9/24 오전·오후 릴스 확인. `scheduled_for` 이전 게시 및 rejected=true 게시를 차단하도록 보완. 기존 Instagram 코드/manifest/workflow 수정 없음.
+- 기존 Instagram workflow 완료 후 Threads workflow가 독립 실행. 승인+예약 도달 영상 한 개/실행. 이미 게시한 05는 재게시하지 않음.
+- 장기 토큰 자동 갱신은 아직 미구현. 다음 운영 작업에서 만료일 확인/갱신 관리 필요. 토큰/앱 시크릿은 파일이나 로그에 남기지 말 것.
+
+## TikTok 다음 연결 후보 (아직 가입·연결·게시 안 함)
+
+자체 앱 Direct Post 제한 때문에 Buffer 무료 플랜을 조사하고 가입 직전 화면까지 준비.
+- 공식 무료 플랜: 최대 3채널, 채널당 동시 대기 10개(소진 후 재충전), API key 1개, 월 API 3,000회. 월 게시 10개 제한이 아님.
+- TikTok 자동 게시/API 생성 지원. 하루 2개를 한 개씩 전달하는 방식은 문서상 무료 한도 내 구성 가능. 실제 계정 연결 후 검증 필요.
+- 가격: https://buffer.com/pricing
+- API 한도: https://developers.buffer.com/guides/api-limits.html
+- 영상 게시 예제: https://developers.buffer.com/examples/create-video-post.html
+- TikTok 지원: https://support.buffer.com/en-us/articles/using-tiktok-with-buffer-oGEroY9Of2
+- 브라우저에 Free 플랜 가입 화면 준비. 이메일/새 비밀번호 입력 전. 유료 결제나 체험판 신청 없음.
+- 새 서비스 가입 및 TikTok 권한은 아직 승인/연결 전. 대상은 jinwoo.jang5. Instagram 연결을 Buffer로 이전하지 말 것.
+- 승인 후: Buffer 무료 가입/로그인 → TikTok jinwoo.jang5 연결 → 최소 API 키 발급/Secrets 저장 → 별도 TikTok ledger/워크플로 구현 → 사전검증 → 05 실게시 → 게시 링크 및 재실행 중복 방지 확인.
+- 신규 비밀번호 생성은 브라우저 정책상 사용자 직접 입력 필요. 보안값을 채팅으로 요청하지 말 것.
