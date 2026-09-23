@@ -1,0 +1,60 @@
+name: Publish approved TikTok reel
+
+on:
+  workflow_run:
+    workflows: ["Publish approved Instagram reel"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish one approved reel (false performs read-only preflight)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: characzone-tiktok-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Report connection status
+        if: vars.TIKTOK_ENABLED != 'true'
+        run: echo 'TikTok is not activated. Connect jinwoo.jang5, run preflight, then set TIKTOK_ENABLED=true.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/checkout@v4
+        if: vars.TIKTOK_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        if: vars.TIKTOK_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        with:
+          python-version: '3.12'
+      - name: Install dependencies and test
+        if: vars.TIKTOK_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -v
+      - uses: actions/checkout@v4
+        if: vars.TIKTOK_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish)
+        with:
+          ref: tiktok-publish-state
+          path: .tiktok-state
+      - name: Validate account or publish
+        if: vars.TIKTOK_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          PUBLISH: ${{ vars.TIKTOK_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish) }}
+        run: |
+          if [ "$PUBLISH" = 'true' ]; then
+            python publish_tiktok.py --publish
+          else
+            python publish_tiktok.py
+          fi
