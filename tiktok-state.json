@@ -1,10 +1,11 @@
 {
   "reels": {
     "characzone-reel-05": {
-      "phase": "creating",
+      "phase": "submitted",
       "fingerprint": "fc2d4b8a0956ecb37cf3701239971d90ba6d6498039cd6f81ef96b4a98b0b9ec",
       "channel_id": "6ab41d16ea19ca0bdec9454b",
-      "updated_at": "2026-09-23T19:04:25.664780+00:00"
+      "buffer_post_id": "6ab422bd746aac800cfb1d11",
+      "updated_at": "2026-09-23T19:04:39.477139+00:00"
     }
   }
 }
