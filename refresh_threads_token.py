@@ -1,6 +1,7 @@
 """Renew the existing Threads long-lived token without printing credentials."""
 import hmac
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -12,11 +13,10 @@ from publish_threads import Threads, PublishError
 def refresh(token, request=requests.get):
     if not token:
         raise PublishError("Missing THREADS_ACCESS_TOKEN")
-    # The official Meta Postman collection uses bearer auth on this endpoint.
+    # Meta's official collection sets addTokenTo=queryParams for this OAuth endpoint.
     try:
         response = request("https://graph.threads.net/refresh_access_token",
-                           headers={"Authorization": f"Bearer {token}"},
-                           params={"grant_type": "th_refresh_token"},
+                           params={"grant_type": "th_refresh_token", "access_token": token},
                            timeout=(10, 60))
         data = response.json()
     except (requests.RequestException, ValueError):
@@ -24,7 +24,9 @@ def refresh(token, request=requests.get):
     if not response.ok or "error" in data:
         code = data.get("error", {}).get("code")
         code = code if isinstance(code, int) else "unknown"
-        raise PublishError(f"Threads renewal rejected (HTTP {response.status_code}, code {code}); token may be too new or expired")
+        detail = str(data.get("error", {}).get("message", "")).replace(token, "[REDACTED]")
+        detail = re.sub(r"https?://\S+|[A-Za-z0-9_\-]{30,}", "[REDACTED]", detail)[:300]
+        raise PublishError(f"Threads renewal rejected (HTTP {response.status_code}, code {code}): {detail}")
     renewed = data.get("access_token")
     lifetime = data.get("expires_in")
     if not isinstance(renewed, str) or not renewed or type(lifetime) is not int or lifetime <= 0:

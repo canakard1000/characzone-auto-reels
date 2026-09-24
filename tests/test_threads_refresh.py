@@ -8,7 +8,7 @@ class RefreshTests(unittest.TestCase):
         req = Mock(return_value=Mock(ok=True, json=lambda: {"access_token": "test-secret", "expires_in": 5184000}))
         self.assertEqual(refresh("test-secret", req), 5184000)
         self.assertNotIn("test-secret", req.call_args.args[0])
-        self.assertNotIn("access_token", req.call_args.kwargs["params"])
+        self.assertEqual(req.call_args.kwargs["params"]["access_token"], "test-secret")
 
     def test_rotated_token_not_silently_discarded(self):
         req = Mock(return_value=Mock(ok=True, json=lambda: {"access_token": "different-secret", "expires_in": 5184000}))
