@@ -87,7 +87,16 @@
 - 갱신 API가 기존과 다른 token을 반환함. 같은 token의 만료기간만 연장된다고 가정해서는 안 됨.
 - 실행 36004379275에서 새 토큰 발급과 gacha_m2026 계정/게시 권한 검증 성공. expires_in=5100259, 만료 예상 2026-11-22T13:59:41Z (KST 22:59).
 - 새 토큰은 RSA-OAEP + AES-GCM 암호화로만 runner 밖으로 전달. 임시 개인키/전달파일 삭제 완료.
-- GitHub THREADS_ACCESS_TOKEN 교체를 제출했으나 Confirm access / Verify via email에서 대기. Secret 저장 완료가 아님. 이메일 본인 확인 후 저장 결과와 새 Secret으로 읽기 전용 게시 preflight를 검증해야 함.
-- 현재 브라우저 secret 수정 폼에 값이 남아 있을 수 있음. 전체 DOM/스크린샷으로 입력값을 출력하지 말 것. 인증 대화상자만 한정해서 확인할 것.
+- GitHub 이메일 본인 확인을 사용자 완료한 뒤 THREADS_ACCESS_TOKEN 교체 저장 완료. Secret updated 알림과 갱신일 확인.
+- Secret 수정 폼 종료 및 목록 화면 복귀 확인. 앞으로도 민감한 입력 폼은 전체 DOM/스크린샷으로 출력하지 말 것.
 - 갱신 workflow는 Secret 반영 전에는 의도적으로 failure로 끝나며 성공으로 기록하지 않음. 자동 갱신 일정은 추가하지 않았음.
 - 다음 갱신은 새 일회용 공개키를 workflow 입력으로 전달해야 함. 기존 일회용 개인키는 삭제되었으므로 과거 실행을 그대로 재실행하지 말 것.
+
+
+## 갱신 최종 검증 완료 — 2026-09-24
+
+- 저장된 새 THREADS_ACCESS_TOKEN으로 읽기 전용 실계정 preflight 성공: https://github.com/canakard1000/characzone-auto-reels/actions/runs/36007146124
+- @gacha_m2026 계정과 게시 권한 확인. 전체 테스트42개 통과. 추가 게시물/컨테이너 생성 없음.
+- API 반환 유효기간으로 계산한 만료 예상: 2026-11-22 22:59 KST. 별도 자동 갱신 일정은 없음. 만료 전 다시 갱신·Secrets 교체 필요.
+- 앞선 갱신 workflow failure는 새 토큰을 Secrets에 반영하기 전 의도적으로 정지한 기록이며, 위 실제 검증으로 교체 완료 확인.
+- Instagram/TikTok 설정과 승인/게시 상태는 갱신 작업에서 변경하지 않음.
