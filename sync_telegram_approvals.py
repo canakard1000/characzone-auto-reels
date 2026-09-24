@@ -6,6 +6,7 @@ def send(token,chat,text): requests.post(f"https://api.telegram.org/bot{token}/s
 def main():
     token=os.getenv("TELEGRAM_BOT_TOKEN","").strip(); chat=os.getenv("TELEGRAM_CHAT_ID","").strip()
     if not token or not chat: raise RuntimeError("Missing Telegram secrets")
+    requests.post(f"https://api.telegram.org/bot{token}/deleteWebhook",data={"drop_pending_updates":"false"},timeout=30).raise_for_status()
     state=json.loads(STATE.read_text()) if STATE.exists() else {"last_update_id":0}
     r=requests.get(f"https://api.telegram.org/bot{token}/getUpdates",params={"offset":state["last_update_id"]+1,"timeout":0},timeout=30); payload=r.json()
     if not r.ok or not payload.get("ok"):
