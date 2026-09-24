@@ -24,7 +24,7 @@ jobs:
           python-version: '3.12'
       - name: Install and test renewal safeguards
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements.txt cryptography
           python -m unittest discover -s tests -p 'test_threads_refresh.py' -v
       - name: Renew token and verify publishing account
         env:
