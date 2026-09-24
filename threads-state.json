@@ -17,9 +17,10 @@
       "updated_at": "2026-09-24T03:07:59.976033+00:00"
     },
     "characzone-2026-09-24-pm": {
-      "phase": "creating",
+      "phase": "processing",
       "fingerprint": "1ecce7652576f3dc1e0695706e152f4ae6668de54a5212c3f3fc3a1e493b9501",
-      "updated_at": "2026-09-24T12:28:32.222779+00:00"
+      "container_id": "18116922295840344",
+      "updated_at": "2026-09-24T12:28:34.543999+00:00"
     }
   }
 }
