@@ -197,6 +197,10 @@ def main():
     user_id = os.getenv("THREADS_USER_ID", "").strip()
     if not token:
         raise PublishError("Missing THREADS_ACCESS_TOKEN; no post sent")
+    token_directory = os.getenv("THREADS_TOKEN_STATE_DIR")
+    if token_directory:
+        from threads_token_store import current_token
+        token = current_token(token_directory, token)
     client = Threads(token, user_id)
     client.preflight()
     if not args.publish:

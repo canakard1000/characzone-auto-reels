@@ -40,16 +40,23 @@ jobs:
       - name: Install dependencies and test
         if: vars.THREADS_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements-threads.txt
           python -m unittest discover -s tests -v
       - uses: actions/checkout@v4
         if: vars.THREADS_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish)
         with:
           ref: social-publish-state
           path: .social-state
+      - uses: actions/checkout@v4
+        if: vars.THREADS_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+        with:
+          ref: threads-token-state
+          path: .threads-token-state
+          persist-credentials: false
       - name: Validate account or publish
         if: vars.THREADS_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
         env:
+          THREADS_TOKEN_STATE_DIR: .threads-token-state
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
           PUBLISH: ${{ vars.THREADS_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish) }}

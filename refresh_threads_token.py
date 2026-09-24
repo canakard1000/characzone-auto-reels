@@ -1,32 +1,13 @@
-"""Renew the existing Threads long-lived token without printing credentials."""
-import hmac
-import base64
-import json
+"""Refresh Threads credentials and persist only authenticated ciphertext."""
 import os
-import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
 import requests
 from publish_threads import Threads, PublishError
+from threads_token_store import TokenStore
 
-
-RECOVERY_PUBLIC_KEY = os.getenv("THREADS_RECOVERY_PUBLIC_KEY", "").strip()
-
-
-def seal(payload, public_key):
-    from cryptography.hazmat.primitives import hashes, serialization
-    from cryptography.hazmat.primitives.asymmetric import padding
-    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-    key, nonce = AESGCM.generate_key(bit_length=256), os.urandom(12)
-    public = serialization.load_pem_public_key(base64.b64decode(public_key))
-    wrapped = public.encrypt(key, padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
-    encrypted = AESGCM(key).encrypt(nonce, json.dumps(payload).encode(), b"threads-refresh")
-    return base64.b64encode(json.dumps([base64.b64encode(v).decode() for v in (wrapped, nonce, encrypted)]).encode()).decode()
-
-
-def refresh(token, request=requests.get, recovery_public_key=None):
+def refresh(token, request=requests.get):
     if not token:
         raise PublishError("Missing THREADS_ACCESS_TOKEN")
     # Meta's official collection sets addTokenTo=queryParams for this OAuth endpoint.
@@ -40,55 +21,59 @@ def refresh(token, request=requests.get, recovery_public_key=None):
     if not response.ok or "error" in data:
         code = data.get("error", {}).get("code")
         code = code if isinstance(code, int) else "unknown"
-        detail = str(data.get("error", {}).get("message", "")).replace(token, "[REDACTED]")
-        detail = re.sub(r"https?://\S+|[A-Za-z0-9_\-]{30,}", "[REDACTED]", detail)[:300]
-        raise PublishError(f"Threads renewal rejected (HTTP {response.status_code}, code {code}): {detail}")
+        raise PublishError(f"Threads renewal rejected (HTTP {response.status_code}, code {code})")
     renewed = data.get("access_token")
     lifetime = data.get("expires_in")
     if not isinstance(renewed, str) or not renewed or type(lifetime) is not int or lifetime <= 0:
         raise PublishError("Invalid renewal response; no success recorded")
-    # Never silently discard a rotated credential or claim Secrets were updated.
-    if not hmac.compare_digest(renewed, token):
-        if recovery_public_key:
-            Threads(renewed, "").preflight()
-            envelope = seal({"access_token": renewed, "expires_in": lifetime, "refreshed_at": datetime.now(timezone.utc).isoformat()}, recovery_public_key)
-            print("ENCRYPTED_THREADS_REFRESH=" + envelope)
-            raise PublishError("Token renewed and verified; encrypted handoff ready. GitHub Secret replacement remains pending")
-        raise PublishError("Threads returned a different token; secure Secret replacement is required. No token was logged or saved")
-    return lifetime
+    return renewed, lifetime
+
+
+def renew(store, validate, request_refresh=refresh, now=None):
+    now = now or datetime.now(timezone.utc)
+    state = store.read()
+    active = state.get("active")
+    pending = state.get("pending")
+    if not pending:
+        if active:
+            renewed_at = datetime.fromisoformat(active["refreshed_at"])
+            expires_at = datetime.fromisoformat(active["expires_at"])
+            age = now - renewed_at
+            # Daily retries, but never refresh a credential younger than 24 hours.
+            if age < timedelta(days=1) or (age < timedelta(days=7) and expires_at - now > timedelta(days=14)):
+                validate(active["access_token"])
+                return "checked", active
+        token = active["access_token"] if active else store.root_secret
+        validate(token)
+        token, lifetime = request_refresh(token)
+        pending = {"access_token": token, "refreshed_at": now.isoformat(),
+                   "expires_at": (now + timedelta(seconds=lifetime)).isoformat()}
+        state["pending"] = pending
+        # Persist before validation: a transient API outage cannot lose a rotated token.
+        store.save(state)
+    validate(pending["access_token"])
+    state["active"] = pending
+    state.pop("pending", None)
+    store.save(state)
+    return "renewed", pending
 
 
 def main():
-    token = os.environ.get("THREADS_ACCESS_TOKEN", "").strip()
-    if not token:
-        raise PublishError("Missing THREADS_ACCESS_TOKEN")
-    if not RECOVERY_PUBLIC_KEY:
-        raise PublishError("Supply a fresh RSA public key with its private key kept by the operator before renewing")
-    from cryptography.hazmat.primitives import serialization
-    from cryptography.hazmat.primitives.asymmetric import rsa
-    public = serialization.load_pem_public_key(base64.b64decode(RECOVERY_PUBLIC_KEY, validate=True))
-    if not isinstance(public, rsa.RSAPublicKey) or public.key_size < 3072:
-        raise PublishError("Recovery public key must be RSA 3072 bits or stronger")
-    client = Threads(token, os.environ.get("THREADS_USER_ID", "").strip())
-    client.preflight()
-    lifetime = refresh(token, recovery_public_key=RECOVERY_PUBLIC_KEY)
-    client.preflight()
-    expiry = datetime.now(timezone.utc) + timedelta(seconds=lifetime)
-    message = ("Threads token renewal succeeded for @gacha_m2026.\n"
-               "Existing GitHub Secret matches the renewed token; no replacement needed.\n"
-               f"API returned expires_in={lifetime} seconds.\n"
-               f"Estimated expiry (UTC): {expiry.isoformat()}\n"
-               f"Estimated expiry (KST): {expiry.astimezone(timezone(timedelta(hours=9))).isoformat()}\n"
-               "Account and publishing permission verified after renewal. No content posted.\n")
+    root = os.getenv("THREADS_ACCESS_TOKEN", "").strip()
+    store = TokenStore(os.getenv("THREADS_TOKEN_STATE_DIR", ".threads-token-state"), root)
+    user_id = os.getenv("THREADS_USER_ID", "").strip()
+    status, active = renew(store, lambda token: Threads(token, user_id).preflight())
+    message = (f"Threads token {status} for @gacha_m2026.\n"
+               f"Estimated expiry (UTC): {active['expires_at']}\n"
+               "Latest credential is encrypted and available to the publisher. No content posted.\n")
     print(message)
     if os.getenv("GITHUB_STEP_SUMMARY"):
-        Path(os.environ["GITHUB_STEP_SUMMARY"]).write_text("## Threads token renewal\n\n" + message.replace("\n", "\n\n"))
+        Path(os.environ["GITHUB_STEP_SUMMARY"]).write_text(message)
 
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        # Unexpected errors must not expose a requests URL/header or response.
         print("::error::" + (str(exc) if isinstance(exc, PublishError) else "Threads renewal failed; credentials not logged"))
         sys.exit(1)

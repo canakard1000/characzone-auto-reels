@@ -100,3 +100,14 @@
 - API 반환 유효기간으로 계산한 만료 예상: 2026-11-22 22:59 KST. 별도 자동 갱신 일정은 없음. 만료 전 다시 갱신·Secrets 교체 필요.
 - 앞선 갱신 workflow failure는 새 토큰을 Secrets에 반영하기 전 의도적으로 정지한 기록이며, 위 실제 검증으로 교체 완료 확인.
 - Instagram/TikTok 설정과 승인/게시 상태는 갱신 작업에서 변경하지 않음.
+
+
+## Threads automatic renewal — 2026-09-24
+
+- `Refresh Threads access token` now runs daily at 03:17 UTC (12:17 KST); GitHub scheduling can be delayed. It validates the account daily and refreshes after seven days, or earlier when fewer than 14 days remain, never within 24 hours of the last refresh.
+- A rotated token is persisted encrypted before verification, then promoted after the existing `gacha_m2026` identity/publishing-permission checks. A failed verification leaves a pending encrypted token; rerunning the renewal workflow resumes validation without requesting another refresh. Publishing stops while pending validation exists. Failed jobs retry at the next daily schedule; GitHub Actions failure notifications follow the owner's notification preferences.
+- `threads-token-state/threads-token.enc.json` contains only version/salt/nonce/ciphertext (HKDF-SHA256 + AES-256-GCM, random salt and nonce). The existing `THREADS_ACCESS_TOKEN` Secret is the stable encryption root and bootstrap credential. Its API expiry does not expire its ability to decrypt the latest token. **Do not routinely replace/delete this Secret or the token-state branch.** No new PAT or Secrets-write permission is needed.
+- The Threads publisher checks out this dedicated branch and decrypts the latest verified credential. Missing checkout, corrupt ciphertext, wrong key or pending verification fails closed. Bootstrap fallback is allowed only when the checkout exists and has no encrypted state file. The refresh and publishing workflows share concurrency group `characzone-threads-publish`; TikTok state writes cannot conflict with token renewal.
+- Manual recovery after Meta revocation/expired access: pause Threads jobs (`THREADS_ENABLED=false`), obtain a new authorized long-lived token, save it as `THREADS_ACCESS_TOKEN`, remove only `threads-token.enc.json` from `threads-token-state`, restore `THREADS_ENABLED=true`, run Refresh Threads access token, then run the Threads publisher with `publish=false`. Keep `social-publish-state` ledgers intact to prevent duplicate posts. Root-key replacement requires reinitializing encrypted state; old ciphertext remains in Git history but cannot be decrypted with the new key.
+- Instagram publishing, approval manifest and thumbnail logic were not changed. The renewal workflow never posts content.
+- Initial live verification: pending at implementation commit; results recorded below after the first run.
