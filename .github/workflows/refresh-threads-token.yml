@@ -2,6 +2,11 @@ name: Refresh Threads access token
 
 on:
   workflow_dispatch:
+    inputs:
+      recovery_public_key:
+        description: "Base64 PEM RSA public key for encrypted token handoff; retain the private key securely"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -28,6 +33,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_threads_refresh.py' -v
       - name: Renew token and verify publishing account
         env:
+          THREADS_RECOVERY_PUBLIC_KEY: ${{ inputs.recovery_public_key }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
         run: python refresh_threads_token.py

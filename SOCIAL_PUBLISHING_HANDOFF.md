@@ -78,3 +78,16 @@
 - 게시 시각: 2026-09-23T19:06:12.581Z (한국시간 9/24 04:06:12).
 - 9/20 기존 TikTok 게시물 `7687336671154621717`와 다른 신규 게시물임.
 - 이후 승인+예약 도달 영상은 기존 Instagram 작업 종료 후 각각 Threads/TikTok 자동 게시. 05는 재게시하지 않음.
+
+
+## 2026-09-24 Threads 토큰 갱신 진행 기록
+
+- 사용자 승인 후 갱신용 `refresh_threads_token.py`, 수동 workflow, 비밀값 노출 방지 테스트5개 추가.
+- 최초 Bearer 방식 HTTP500/code100 → 공식 Meta Postman 컬렉션의 OAuth `addTokenTo=queryParams` 방식으로 수정.
+- 갱신 API가 기존과 다른 token을 반환함. 같은 token의 만료기간만 연장된다고 가정해서는 안 됨.
+- 실행 36004379275에서 새 토큰 발급과 gacha_m2026 계정/게시 권한 검증 성공. expires_in=5100259, 만료 예상 2026-11-22T13:59:41Z (KST 22:59).
+- 새 토큰은 RSA-OAEP + AES-GCM 암호화로만 runner 밖으로 전달. 임시 개인키/전달파일 삭제 완료.
+- GitHub THREADS_ACCESS_TOKEN 교체를 제출했으나 Confirm access / Verify via email에서 대기. Secret 저장 완료가 아님. 이메일 본인 확인 후 저장 결과와 새 Secret으로 읽기 전용 게시 preflight를 검증해야 함.
+- 현재 브라우저 secret 수정 폼에 값이 남아 있을 수 있음. 전체 DOM/스크린샷으로 입력값을 출력하지 말 것. 인증 대화상자만 한정해서 확인할 것.
+- 갱신 workflow는 Secret 반영 전에는 의도적으로 failure로 끝나며 성공으로 기록하지 않음. 자동 갱신 일정은 추가하지 않았음.
+- 다음 갱신은 새 일회용 공개키를 workflow 입력으로 전달해야 함. 기존 일회용 개인키는 삭제되었으므로 과거 실행을 그대로 재실행하지 말 것.

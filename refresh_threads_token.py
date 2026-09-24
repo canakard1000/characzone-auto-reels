@@ -12,7 +12,7 @@ import requests
 from publish_threads import Threads, PublishError
 
 
-RECOVERY_PUBLIC_KEY = 'LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQm9qQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FZOEFNSUlCaWdLQ0FZRUFyczdCY0lLNy9yUnJVQVNDWFZQWgoxQ08xQ3E3MVVNSTM4R1NOcmVaM3prZU4xNnJ4UElMeldUNWNlTVZPNWVJQUJidkY5SUdZMkk3VG0wYjR0a3FOCldQY09KU21ucERSQVY3V1ljME0xQlQ2eEFJdVVQb0FEbFhBZU9xdWtOM3M2My9rY2ZiM2pYUmh4RHBaVGRqME8KREY3Y25ZSWozWVViZUhjN2swU1lKdURJOG5yQ0Foa0VRRnZZR29PMklKYmRoQlR3WUN3TnBsdHZIUmZHYS94NQp5QjB0SFlSNTg0MmRaU1lPR05HOU9lbFcxL2p1d0JDOUlTMmxPSjlaaGt3bGVSZ0YyM2lVbHJ1QVlIZ0R1ODFzCjZTR0xERGR0b1daU0VSNHY5WGFaaGl0SDF3RkdSZXliNU9pNWpjRkJRNEdZbW45VnJiN0pjTFNDOXZESjVRR1IKODR2dXFMMFpXbktoM1FLN1JISHpBL3hUM082aThJdlRoRWpBNU5rSk5YMSttYk10Ukd2UEEzc2ZuNWJPTGtFVgphdHo4ekgxOEpBV0I1WDBoVndxbEZsZ0o4TXVsbE51OW1kSDZ4eENvNzR5QWs0dnBXYkRtWEF5aWJHOW90anBTCiszUGlSU2hNTUh5WWJuRncvYmxsWXJYYis4ODJzNGhSVEM3bzZVdE02WkJOQWdNQkFBRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg=='
+RECOVERY_PUBLIC_KEY = os.getenv("THREADS_RECOVERY_PUBLIC_KEY", "").strip()
 
 
 def seal(payload, public_key):
@@ -62,6 +62,13 @@ def main():
     token = os.environ.get("THREADS_ACCESS_TOKEN", "").strip()
     if not token:
         raise PublishError("Missing THREADS_ACCESS_TOKEN")
+    if not RECOVERY_PUBLIC_KEY:
+        raise PublishError("Supply a fresh RSA public key with its private key kept by the operator before renewing")
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    public = serialization.load_pem_public_key(base64.b64decode(RECOVERY_PUBLIC_KEY, validate=True))
+    if not isinstance(public, rsa.RSAPublicKey) or public.key_size < 3072:
+        raise PublishError("Recovery public key must be RSA 3072 bits or stronger")
     client = Threads(token, os.environ.get("THREADS_USER_ID", "").strip())
     client.preflight()
     lifetime = refresh(token, recovery_public_key=RECOVERY_PUBLIC_KEY)
