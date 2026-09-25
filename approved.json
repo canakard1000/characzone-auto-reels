@@ -178,7 +178,7 @@
         "22201.jpg"
       ],
       "music_variant": 11,
-      "telegram_notified": false,
+      "telegram_notified": true,
       "created_at": "2026-09-25T16:47:10.019022+00:00"
     },
     {
@@ -202,7 +202,7 @@
         "22196.jpg"
       ],
       "music_variant": 0,
-      "telegram_notified": false,
+      "telegram_notified": true,
       "created_at": "2026-09-25T16:47:23.303945+00:00"
     }
   ]
