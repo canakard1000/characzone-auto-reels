@@ -207,7 +207,7 @@
     },
     {
       "id": "characzone-2026-09-28-am",
-      "approved": false,
+      "approved": true,
       "rejected": false,
       "published": false,
       "slot": "am",
