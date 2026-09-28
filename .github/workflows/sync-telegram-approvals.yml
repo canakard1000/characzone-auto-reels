@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: characzone-content-state
   cancel-in-progress: false
@@ -19,7 +20,7 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Apply approval commands from owner chat
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_V2 }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python sync_telegram_approvals.py
       - name: Save approval and cursor state
@@ -30,3 +31,8 @@ jobs:
           git add approved.json telegram-state.json
           git commit -m "Apply Telegram reel approval"
           git push
+      - name: Start three-channel publishing after approval
+        if: hashFiles('.dispatch-instagram-now') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish-approved-reel.yml --ref main -f preflight_only=false
