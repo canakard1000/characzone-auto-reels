@@ -41,10 +41,10 @@
       "updated_at": "2026-09-29T01:40:33.153318+00:00"
     },
     "characzone-2026-09-29-pm": {
-      "phase": "processing",
+      "phase": "publishing",
       "fingerprint": "043045097e386b65d0ba3351ef871af77b007352d55631bcb011bcbabd9fa38a",
       "container_id": "18118532539840344",
-      "updated_at": "2026-09-29T12:16:25.016019+00:00"
+      "updated_at": "2026-09-29T12:16:57.115154+00:00"
     }
   }
 }
