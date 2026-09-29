@@ -379,7 +379,7 @@
       ],
       "template_variant": 1,
       "music_variant": 1,
-      "telegram_notified": false,
+      "telegram_notified": true,
       "created_at": "2026-09-29T17:49:10.079276+00:00"
     },
     {
@@ -404,7 +404,7 @@
       ],
       "template_variant": 2,
       "music_variant": 2,
-      "telegram_notified": false,
+      "telegram_notified": true,
       "created_at": "2026-09-29T17:49:24.659088+00:00"
     }
   ]
