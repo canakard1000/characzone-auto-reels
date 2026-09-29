@@ -46,11 +46,13 @@
       "updated_at": "2026-09-29T01:41:15.456944+00:00"
     },
     "characzone-2026-09-29-pm": {
-      "phase": "submitted",
+      "phase": "published",
       "fingerprint": "a644f39b94fca3664e6ddf9e00e83a9d062a4fc6ac7a8fd6ef701d3589e847cf",
       "channel_id": "6ab41d16ea19ca0bdec9454b",
       "buffer_post_id": "6abbac3a98e8933d322fe43f",
-      "updated_at": "2026-09-29T12:17:09.306031+00:00"
+      "published_at": "2026-09-29T12:18:43.210Z",
+      "external_link": "https://tiktok.com/@jinwoo.jang5/video/7690929996923292934",
+      "updated_at": "2026-09-29T12:18:52.029713+00:00"
     }
   }
 }
