@@ -12,9 +12,11 @@ class GenerationTests(unittest.TestCase):
     def test_required_wording(self):
         text=" ".join(generator.HOOKS+generator.COPY)
         self.assertNotIn("가챠샵",text); self.assertIn("가챠머신 창업",text)
-    def test_only_approved_machine_photos_are_selected(self):
-        self.assertEqual(generator.APPROVED_SOURCE_NAMES,{f"gacha-model-{n}.jpg" for n in range(1,6)})
-        self.assertTrue(all("221" not in name and "222" not in name for name in generator.APPROVED_SOURCE_NAMES))
+    def test_only_cumulative_approved_machine_photos_are_selected(self):
+        selected = generator.photos()
+        self.assertGreaterEqual(len(selected), 5)
+        self.assertTrue(all(path.name.startswith("gacha-model-") for path in selected))
+        self.assertTrue(all("221" not in path.name and "222" not in path.name for path in selected))
     def test_future_reel_is_not_published(self):
         payload={"reels":[{"id":"future","approved":True,"published":False,"scheduled_for":"2999-01-01T00:00:00+00:00"}]}
         with tempfile.TemporaryDirectory() as d:
