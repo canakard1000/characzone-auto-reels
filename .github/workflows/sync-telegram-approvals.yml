@@ -31,8 +31,8 @@ jobs:
           git add approved.json telegram-state.json
           git commit -m "Apply Telegram reel approval"
           git push
-      - name: Start three-channel publishing after approval
-        if: hashFiles('.dispatch-instagram-now') != ''
+      - name: Check and publish any due approved reel
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run publish-approved-reel.yml --ref main -f preflight_only=false
