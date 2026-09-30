@@ -12,7 +12,7 @@ KST, SIZE, SCENE_SECONDS = timezone(timedelta(hours=9)), (1080, 1920), 1.35
 APPROVED_SOURCE_PATTERN = "gacha-model-*"
 THEMES = [((8,19,44),(0,229,255),(255,72,187)),((21,12,37),(255,214,10),(255,75,43)),((8,32,28),(88,255,150),(34,211,238)),((28,16,54),(178,104,255),(255,103,164)),((35,22,14),(255,174,66),(255,245,190)),((12,24,52),(76,140,255),(255,255,255))]
 HOOKS = ["카드 한 장으로 시작되는 랜덤의 재미","지금 매장에 필요한 새로운 체류 포인트","작은 공간도 눈길 끄는 무인 콘텐츠로","실제 운영 매장에서 확인한 인기 포인트","다음 창업 아이템, 가챠머신은 어떨까요?","결제는 간편하게, 재미는 더 크게"]
-COPY = ["카드리더기 간편 결제","랜덤 뽑기의 강한 몰입감","실제 운영 매장 분위기","공간에 맞춘 머신 구성","다양한 컬러와 디자인","무인 운영에 어울리는 구성","설치부터 운영까지 상담","캐릭존 공급 가챠머신","가챠머신 찻업 상담"]
+COPY = ["카드리더기 간편 결제","랜덤 뽑기의 강한 몰입감","실제 운영 매장 분위기","공간에 맞춘 머신 구성","다양한 컬러와 디자인","무인 운영에 어울리는 구성","설치부터 운영까지 상담","캐릭존 공급 가챠머신","가챠머신 창업 상담"]
 
 def ft(path, size): return ImageFont.truetype(str(path), size)
 
@@ -56,7 +56,7 @@ def scene(photo, output, title, theme, index, template):
     image = Image.alpha_composite(image, layer); d = ImageDraw.Draw(image)
     d.text((92,78),"CHARACZONE",font=ft(BOLD,39),fill="white")
     centered_text(d,title,940,ft(BOLD,66),"white",base)
-    d.text((178,1678),"가챠머신 창업상담  010-2587-8553",font=ft(BOLD,38),fill="white")
+    d.text((178,1678),"가챠머신 창업상담  010-2876-8553",font=ft(BOLD,38),fill="white")
     d.text((930,82),f"{index+1:02d}/09",font=ft(BOLD,28),fill="white")
     image.convert("RGB").save(output, quality=94)
 
@@ -102,8 +102,8 @@ def build(day,slot,manifest):
     for i,p in enumerate(selected):
         out=work/f"scene-{i:02d}.jpg"; scene(p,out,rng.choice(HOOKS) if i==0 else copy[i],theme,i,(seed+i)%6); frames.append(out)
     wav=work/"music.wav"; music(wav,len(frames)*SCENE_SECONDS+.5,seed); video=ROOT/f"{rid}.mp4"; encode(frames,wav,video,seed)
-    captions=["카드리더기로 간편하게 결제하고 랜덤으로 즐기는 가챠머신 찻업. 실제 운영 매장과 캐릭존 공급 머신을 확인해보세요.","작은 공간에도 시선을 끄는 가챠머신. 카드 결제부터 머신 구성, 운영 상담까지 캐릭존이 함께합니다.","매장 체류시간과 재미를 더하는 카드결제 가챠머신. 실제 설치 분위기와 다양한 머신을 영상에서 확인하세요.","무인 운영 아이템을 찾고 있다면 카드결제 가챠머신을 확인해보세요. 공간별 구성과 창업 상담을 안내합니다."]
-    manifest["reels"].append({"id":rid,"approved":False,"rejected":False,"published":False,"slot":slot,"scheduled_for":schedule(day,slot).isoformat(),"video_url":f"https://raw.githubusercontent.com/canakard1000/characzone-auto-reels/main/{video.name}","caption":captions[seed%4]+" 찻업상담 010-2587-8553 #가챠머신 #가챠머신찻업 #무인창업 #소자본창업 #캐릭존","source_images":[p.name for p in selected],"template_variant":seed%6,"music_variant":seed%5,"telegram_notified":False,"created_at":datetime.now(timezone.utc).isoformat()})
+    captions=["카드리더기로 간편하게 결제하고 랜덤으로 즐기는 가챠머신 창업. 실제 운영 매장과 캐릭존 공급 머신을 확인해보세요.","작은 공간에도 시선을 끄는 가챠머신. 카드 결제부터 머신 구성, 운영 상담까지 캐릭존이 함께합니다.","매장 체류시간과 재미를 더하는 카드결제 가챠머신. 실제 설치 분위기와 다양한 머신을 영상에서 확인하세요.","무인 운영 아이템을 찾고 있다면 카드결제 가챠머신을 확인해보세요. 공간별 구성과 창업 상담을 안내합니다."]
+    manifest["reels"].append({"id":rid,"approved":False,"rejected":False,"published":False,"slot":slot,"scheduled_for":schedule(day,slot).isoformat(),"video_url":f"https://raw.githubusercontent.com/canakard1000/characzone-auto-reels/main/{video.name}","caption":captions[seed%4]+" 창업상담 010-2876-8553 #가챠머신 #가챠머신창업 #무인창업 #소자본창업 #캐릭존","source_images":[p.name for p in selected],"template_variant":seed%6,"music_variant":seed%5,"telegram_notified":False,"created_at":datetime.now(timezone.utc).isoformat()})
     print("Created",video.name,"from 9 supplied photos")
 
 def main():
