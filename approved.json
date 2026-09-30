@@ -410,6 +410,56 @@
       "music_variant": 2,
       "telegram_notified": true,
       "created_at": "2026-09-29T17:49:24.659088+00:00"
+    },
+    {
+      "id": "characzone-2026-10-02-am",
+      "approved": false,
+      "rejected": false,
+      "published": false,
+      "slot": "am",
+      "scheduled_for": "2026-10-02T00:00:00+00:00",
+      "video_url": "https://raw.githubusercontent.com/canakard1000/characzone-auto-reels/main/characzone-2026-10-02-am.mp4",
+      "caption": "작은 공간에도 시선을 끄는 가챠머신. 카드 결제부터 머신 구성, 운영 상담까지 캐릭존이 함께합니다. 창업상담 010-2876-8553 #가챠머신 #가챠머신창업 #무인창업 #소자본창업 #캐릭존",
+      "source_images": [
+        "gacha-model-3.jpg",
+        "gacha-model-4.jpg",
+        "gacha-model-2.jpg",
+        "gacha-model-5.jpg",
+        "gacha-model-1.jpg",
+        "gacha-model-2.jpg",
+        "gacha-model-3.jpg",
+        "gacha-model-5.jpg",
+        "gacha-model-4.jpg"
+      ],
+      "template_variant": 5,
+      "music_variant": 1,
+      "telegram_notified": false,
+      "created_at": "2026-09-30T17:44:53.716252+00:00"
+    },
+    {
+      "id": "characzone-2026-10-02-pm",
+      "approved": false,
+      "rejected": false,
+      "published": false,
+      "slot": "pm",
+      "scheduled_for": "2026-10-02T07:00:00+00:00",
+      "video_url": "https://raw.githubusercontent.com/canakard1000/characzone-auto-reels/main/characzone-2026-10-02-pm.mp4",
+      "caption": "매장 체류시간과 재미를 더하는 카드결제 가챠머신. 실제 설치 분위기와 다양한 머신을 영상에서 확인하세요. 창업상담 010-2876-8553 #가챠머신 #가챠머신창업 #무인창업 #소자본창업 #캐릭존",
+      "source_images": [
+        "gacha-model-4.jpg",
+        "gacha-model-2.jpg",
+        "gacha-model-5.jpg",
+        "gacha-model-1.jpg",
+        "gacha-model-3.jpg",
+        "gacha-model-1.jpg",
+        "gacha-model-4.jpg",
+        "gacha-model-2.jpg",
+        "gacha-model-5.jpg"
+      ],
+      "template_variant": 0,
+      "music_variant": 2,
+      "telegram_notified": false,
+      "created_at": "2026-09-30T17:45:08.322968+00:00"
     }
   ]
 }
