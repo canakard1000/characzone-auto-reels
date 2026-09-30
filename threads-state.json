@@ -49,10 +49,12 @@
       "updated_at": "2026-09-29T12:17:04.835888+00:00"
     },
     "characzone-2026-09-28-pm": {
-      "phase": "publishing",
+      "phase": "published",
       "fingerprint": "d18d0119261f17ff6f4fce618dcff3a45ddb1c30070c647f2eaa7dd51c0705df",
       "container_id": "18118731667840344",
-      "updated_at": "2026-09-30T03:09:21.016683+00:00"
+      "media_id": "18111304811462926",
+      "published_at": "2026-09-30T03:09:28.969552+00:00",
+      "updated_at": "2026-09-30T03:09:28.969571+00:00"
     }
   }
 }
