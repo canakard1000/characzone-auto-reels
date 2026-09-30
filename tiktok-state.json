@@ -64,10 +64,11 @@
       "updated_at": "2026-09-30T03:10:42.001001+00:00"
     },
     "characzone-2026-09-30-am": {
-      "phase": "creating",
+      "phase": "submitted",
       "fingerprint": "7c1e852d4baa15c99becbd13bb763518f3e73b891b46652e35e975644e2ffa94",
       "channel_id": "6ab41d16ea19ca0bdec9454b",
-      "updated_at": "2026-09-30T07:37:05.499073+00:00"
+      "buffer_post_id": "6abcbc23ec2d17419d11794c",
+      "updated_at": "2026-09-30T07:37:18.113630+00:00"
     }
   }
 }
