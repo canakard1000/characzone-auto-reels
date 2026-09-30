@@ -311,7 +311,7 @@
     },
     {
       "id": "characzone-2026-09-30-am",
-      "approved": false,
+            "approved": true,
       "rejected": false,
       "published": false,
       "slot": "am",
@@ -335,7 +335,7 @@
     },
     {
       "id": "characzone-2026-09-30-pm",
-      "approved": false,
+            "approved": true,
       "rejected": false,
       "published": false,
       "slot": "pm",
