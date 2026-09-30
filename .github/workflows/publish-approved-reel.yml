@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: instagram-reel-publish
@@ -47,3 +48,10 @@ jobs:
           git add approved.json
           git commit -m "Mark reel as published"
           git push
+      - name: Start Threads and TikTok publishing directly
+        if: github.event_name != 'workflow_dispatch' || inputs.preflight_only == false
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run publish-approved-threads.yml --ref main -f publish=true
+          gh workflow run publish-approved-tiktok.yml --ref main -f publish=true
