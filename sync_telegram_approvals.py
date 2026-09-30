@@ -18,7 +18,12 @@ def send(token, chat, text):
 
 
 def latest_pending(reels):
-    now = datetime.now(timezone.utc)
+    """Return the next notified reel awaiting a decision, even before publish time.
+
+    Telegram previews are intentionally sent before the scheduled publish time so
+    the owner can approve them in advance.  Pick the earliest pending preview;
+    repeated plain ``승인`` replies therefore approve AM and then PM in order.
+    """
     eligible = []
     for reel in reels:
         if (
@@ -29,12 +34,11 @@ def latest_pending(reels):
         ):
             continue
         try:
-            scheduled = datetime.fromisoformat(reel["scheduled_for"])
+            datetime.fromisoformat(reel["scheduled_for"])
         except (KeyError, ValueError, TypeError):
             continue
-        if scheduled <= now:
-            eligible.append(reel)
-    return max(eligible, key=lambda item: item.get("scheduled_for", ""), default=None)
+        eligible.append(reel)
+    return min(eligible, key=lambda item: item.get("scheduled_for", ""), default=None)
 
 
 def main():
