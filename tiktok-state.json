@@ -91,10 +91,11 @@
       "updated_at": "2026-10-01T03:58:59.265939+00:00"
     },
     "characzone-2026-10-01-pm": {
-      "phase": "creating",
+      "phase": "submitted",
       "fingerprint": "bcc33be01f37d49906ee916fb2da976da5bdf254c20854f6b8c045c7ff6f25e6",
       "channel_id": "6ab41d16ea19ca0bdec9454b",
-      "updated_at": "2026-10-01T10:51:54.865872+00:00"
+      "buffer_post_id": "6abe3b4c8ffc71f26acfed3a",
+      "updated_at": "2026-10-01T10:52:07.054711+00:00"
     }
   }
 }
