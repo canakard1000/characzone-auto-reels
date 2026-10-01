@@ -1,0 +1,30 @@
+name: Ownerclan supplier order report
+on:
+  workflow_dispatch:
+  # Enable only after live Ownerclan query and Telegram receipt are verified.
+  # schedule:
+  #   - cron: '20 */3 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: ownerclan-supplier-order-report
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify monitoring error handling
+        working-directory: order_monitor
+        run: python -m unittest -v
+      - name: Read supplier orders and send Telegram report
+        working-directory: order_monitor
+        env:
+          OWNERCLAN_JWT: ${{ secrets.OWNERCLAN_JWT }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python monitor.py
