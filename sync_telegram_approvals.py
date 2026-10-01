@@ -9,7 +9,7 @@ import requests
 ROOT = Path(__file__).resolve().parent
 MANIFEST = ROOT / "approved.json"
 STATE = ROOT / "telegram-state.json"
-TRIGGER = ROOT / ".dispatch-instagram-now"
+TRIGGER = ROOT / ".publish-instagram-now"
 API = "https://api.telegram.org/bot{}"
 
 
