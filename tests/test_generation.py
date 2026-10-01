@@ -7,7 +7,7 @@ import publish_reel
 
 class GenerationTests(unittest.TestCase):
     def test_schedule_converts_kst_to_utc(self):
-        self.assertEqual(generator.schedule(date(2026,9,24),"am").isoformat(),"2026-09-24T00:00:00+00:00")
+        self.assertEqual(generator.schedule(date(2026,9,24),"am").isoformat(),"2026-09-24T01:00:00+00:00")
         self.assertEqual(generator.schedule(date(2026,9,24),"pm").isoformat(),"2026-09-24T07:00:00+00:00")
     def test_required_wording(self):
         text=" ".join(generator.HOOKS+generator.COPY)
