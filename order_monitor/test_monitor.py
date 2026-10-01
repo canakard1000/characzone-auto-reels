@@ -4,6 +4,20 @@ import monitor
 
 
 class MonitorTests(unittest.TestCase):
+    def test_authentication_is_not_logged_or_persisted(self):
+        with patch.dict(monitor.os.environ, {'OWNERCLAN_USERNAME': 'fake-user',
+                        'OWNERCLAN_PASSWORD': 'fake-pass'}, clear=True):
+            with patch.object(monitor, 'post', return_value='header.payload.signature') as p:
+                self.assertEqual(monitor.get_token(), 'header.payload.signature')
+                self.assertEqual(p.call_args.args[0], monitor.AUTH_ENDPOINT)
+
+    def test_authentication_unknown_schema_fails(self):
+        with patch.dict(monitor.os.environ, {'OWNERCLAN_USERNAME': 'fake-user',
+                        'OWNERCLAN_PASSWORD': 'fake-pass'}, clear=True):
+            with patch.object(monitor, 'post', return_value={'unknown': 'value'}):
+                with self.assertRaises(monitor.MonitorError):
+                    monitor.get_token()
+
     def test_errors_are_not_empty_orders(self):
         with patch.object(monitor, 'post', return_value={'errors': [{'message': 'bad'}]}):
             with self.assertRaises(monitor.MonitorError):
