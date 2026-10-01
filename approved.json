@@ -413,11 +413,11 @@
     },
     {
       "id": "characzone-2026-10-02-am",
-      "approved": false,
+      "approved": true,
       "rejected": false,
       "published": false,
       "slot": "am",
-      "scheduled_for": "2026-10-02T00:00:00+00:00",
+      "scheduled_for": "2026-10-02T01:00:00+00:00",
       "video_url": "https://raw.githubusercontent.com/canakard1000/characzone-auto-reels/main/characzone-2026-10-02-am.mp4",
       "caption": "작은 공간에도 시선을 끄는 가챠머신. 카드 결제부터 머신 구성, 운영 상담까지 캐릭존이 함께합니다. 창업상담 010-2876-8553 #가챠머신 #가챠머신창업 #무인창업 #소자본창업 #캐릭존",
       "source_images": [
@@ -438,7 +438,7 @@
     },
     {
       "id": "characzone-2026-10-02-pm",
-      "approved": false,
+      "approved": true,
       "rejected": false,
       "published": false,
       "slot": "pm",
