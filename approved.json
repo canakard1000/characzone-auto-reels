@@ -392,7 +392,7 @@
       "id": "characzone-2026-10-01-pm",
       "approved": true,
       "rejected": false,
-      "published": false,
+      "published": true,
       "slot": "pm",
       "scheduled_for": "2026-10-01T07:00:00+00:00",
       "video_url": "https://raw.githubusercontent.com/canakard1000/characzone-auto-reels/main/characzone-2026-10-01-pm-corrected.mp4",
@@ -411,7 +411,9 @@
       "template_variant": 2,
       "music_variant": 2,
       "telegram_notified": true,
-      "created_at": "2026-09-29T17:49:24.659088+00:00"
+      "created_at": "2026-09-29T17:49:24.659088+00:00",
+      "instagram_media_id": "18102697397030855",
+      "published_at": "2026-10-01T10:51:22.144259+00:00"
     },
     {
       "id": "characzone-2026-10-02-am",
