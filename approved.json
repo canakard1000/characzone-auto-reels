@@ -363,7 +363,7 @@
     },
     {
       "id": "characzone-2026-10-01-am",
-      "approved": false,
+      "approved": true,
       "rejected": false,
       "published": false,
       "slot": "am",
@@ -388,7 +388,7 @@
     },
     {
       "id": "characzone-2026-10-01-pm",
-      "approved": false,
+      "approved": true,
       "rejected": false,
       "published": false,
       "slot": "pm",
