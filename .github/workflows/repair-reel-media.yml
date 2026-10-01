@@ -1,0 +1,33 @@
+name: Repair one approved reel video
+on:
+  push:
+    paths:
+      - ".repair-reel-now"
+permissions:
+  contents: write
+concurrency:
+  group: characzone-media-repair
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - name: Re-render approved reel with corrected on-screen contact
+        run: python repair_reel_media.py
+      - name: Save corrected video and manifest
+        run: |
+          git config user.name characzone-reels-bot
+          git config user.email actions@users.noreply.github.com
+          reel_id="$(cat .repair-reel-now)"
+          git add approved.json "${reel_id}-corrected.mp4"
+          git commit -m "Replace reel video with corrected contact details"
+          git push
