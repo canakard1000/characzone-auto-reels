@@ -28,3 +28,6 @@
 ## 공식 근거
 https://ownerclan.com/V2/service/api-center-order.php
 https://ownerclan.com/V2/service/api-center-guide.php
+
+## 04:32 인증 연결 추가
+OWNERCLAN_JWT 대신 OWNERCLAN_PASSWORD 보안값과 OWNERCLAN_USERNAME=kard1000으로 실행 시 인증하는 경로 추가. 공식 인증 응답이 JWT 문자열일 때만 처리하고 미확인 형태는 차단. 비밀번호를 영구 저장하려면 사용자의 명시적 저장 동의를 받고 GitHub Secrets에 보안 입력 필요. 코드 8개 모의 테스트 통과, 실인증 미검증.
