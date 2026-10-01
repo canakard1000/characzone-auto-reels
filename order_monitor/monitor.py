@@ -7,6 +7,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 ENDPOINT = 'https://api.ownerclan.com/v1/graphql'
+AUTH_ENDPOINT = 'https://auth.ownerclan.com/auth'
 
 
 class MonitorError(Exception):
@@ -18,7 +19,13 @@ def post(url, payload, headers=None):
                                     {'Content-Type': 'application/json', **(headers or {})})
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
-            return json.load(response)
+            raw = response.read().decode('utf-8').strip()
+            try:
+                return json.loads(raw)
+            except json.JSONDecodeError:
+                if url == AUTH_ENDPOINT and len(raw.split('.')) == 3:
+                    return raw
+                raise MonitorError('응답 해석 실패')
     except Exception:
         # URLs can contain Telegram tokens; never print exception strings.
         raise MonitorError('서비스 요청 실패: 인증·통신 상태 확인 필요') from None
@@ -59,6 +66,22 @@ def query_orders(token):
     raise MonitorError('조회 한도 초과: 전체 주문 확인 실패')
 
 
+def get_token():
+    token = os.environ.get('OWNERCLAN_JWT')
+    if token:
+        return token
+    username = os.environ.get('OWNERCLAN_USERNAME')
+    password = os.environ.get('OWNERCLAN_PASSWORD')
+    if not username or not password:
+        raise MonitorError('오너클랜 API 인증 설정 누락: 조회를 실행하지 못함')
+    result = post(AUTH_ENDPOINT, {'service': 'ownerclan', 'userType': 'seller',
+                                 'username': username, 'password': password})
+    # Existing Ownerclan adapter accepts the documented plain JWT response.
+    if not isinstance(result, str) or len(result.split('.')) != 3:
+        raise MonitorError('오너클랜 인증 응답 미확인')
+    return result
+
+
 def report(orders):
     lines = ['[오너클랜 발주·송장 점검]',
              datetime.now(ZoneInfo('Asia/Seoul')).strftime('%Y-%m-%d %H:%M KST'),
@@ -93,9 +116,7 @@ def send_telegram(message):
 
 def main():
     try:
-        token = os.environ.get('OWNERCLAN_JWT')
-        if not token:
-            raise MonitorError('OWNERCLAN_JWT 설정 누락: 조회를 실행하지 못함')
+        token = get_token()
         message = report(query_orders(token))
     except MonitorError as error:
         message = '[오너클랜 점검 실패]\n' + str(error) + '\n주문·송장 현황은 미확인입니다. 직접 확인이 필요합니다.'
