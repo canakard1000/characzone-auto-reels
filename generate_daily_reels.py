@@ -89,7 +89,7 @@ def encode(frames, soundtrack, output, seed):
         subprocess.run(["ffmpeg","-loglevel","error","-y","-framerate",str(fps),"-i",str(work/"frame-%04d.jpg"),"-i",str(soundtrack),"-shortest","-vf","fps=30,format=yuv420p","-c:v","libx264","-preset","veryfast","-crf","21","-c:a","aac","-b:a","160k","-movflags","+faststart",str(output)],check=True)
     finally: shutil.rmtree(work,ignore_errors=True)
 
-def schedule(day,slot): return datetime.combine(day,time(9 if slot=="am" else 16),tzinfo=KST).astimezone(timezone.utc)
+def schedule(day,slot): return datetime.combine(day,time(10 if slot=="am" else 16),tzinfo=KST).astimezone(timezone.utc)
 
 def build(day,slot,manifest):
     rid=f"characzone-{day.isoformat()}-{slot}"
