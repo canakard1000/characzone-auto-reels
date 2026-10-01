@@ -81,10 +81,10 @@
       "updated_at": "2026-10-01T03:57:42.999969+00:00"
     },
     "characzone-2026-10-01-pm": {
-      "phase": "processing",
+      "phase": "publishing",
       "fingerprint": "08604c02a34675f5af1e8e10b9b3e6634aeac782bcb2cb176e7f88ef8b67a62b",
       "container_id": "18119183059840344",
-      "updated_at": "2026-10-01T10:51:53.815510+00:00"
+      "updated_at": "2026-10-01T10:52:25.545555+00:00"
     }
   }
 }
