@@ -43,7 +43,7 @@ def parse_command(text, by_id, reels):
         if command in {"/approve", "approve", "/reject", "reject"}:
             return by_id.get(parts[1]), command.lstrip("/") in {"approve"}
     normalized = re.sub(r"[✅👍☑️\s]+", "", text).casefold()
-    if normalized in {"승인", "승인합니다", "승인완료", "확인"}:
+    if normalized in {"승인", "승인합니다", "승인완료", "승인했어", "승인했어요"}:
         return latest_pending(reels), True
     if normalized in {"거절", "거절합니다", "거절완료"}:
         return latest_pending(reels), False
