@@ -1,10 +1,6 @@
 name: Publish approved TikTok reel
 
 on:
-  workflow_run:
-    workflows: ["Publish approved Instagram reel"]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
     inputs:
       publish:
@@ -43,7 +39,7 @@ jobs:
           pip install -r requirements.txt
           python -m unittest discover -s tests -v
       - uses: actions/checkout@v4
-        if: vars.TIKTOK_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish)
+        if: vars.TIKTOK_ENABLED == 'true' && inputs.publish
         with:
           ref: tiktok-publish-state
           path: .tiktok-state
@@ -51,7 +47,7 @@ jobs:
         if: vars.TIKTOK_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
-          PUBLISH: ${{ vars.TIKTOK_ENABLED == 'true' && (github.event_name == 'workflow_run' || inputs.publish) }}
+          PUBLISH: ${{ vars.TIKTOK_ENABLED == 'true' && inputs.publish }}
         run: |
           if [ "$PUBLISH" = 'true' ]; then
             python publish_tiktok.py --publish
