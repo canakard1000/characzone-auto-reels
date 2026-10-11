@@ -1,7 +1,5 @@
 name: Generate daily Characzone reels
 on:
-  schedule:
-    - cron: "0 12 * * *"
   workflow_dispatch:
     inputs:
       date:
